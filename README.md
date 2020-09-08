@@ -1,4 +1,4 @@
-# raft-grpc-leader-resolver
+# raft-grpc-leader-rpc
 
 [![Godoc](https://godoc.org/github.com/Jille/raft-grpc-leader-resolver?status.svg)](https://godoc.org/github.com/Jille/raft-grpc-leader-resolver)
 
@@ -13,6 +13,8 @@ During leader elections you'll see about one RTT of errors, make sure your clien
 Add this to your server:
 
 ```go
+import "github.com/Jille/raft-grpc-leader-rpc/leaderhealth"
+
 r, err := raft.NewRaft(...)
 s := grpc.NewServer()
 
