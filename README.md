@@ -33,7 +33,9 @@ You need to explicitly configure your clients to look at health checks.
 Add this to your client:
 
 ```go
-c := `{"healthCheckConfig": {"serviceName": "your-service-name-or-an-empty-string"}}`
+import _ "google.golang.org/grpc/health"
+
+c := `{"healthCheckConfig": {"serviceName": "your-service-name-or-an-empty-string"}, "loadBalancingConfig": [ { "round_robin": {} } ]}`
 conn, err := grpc.Dial("dns://all-your-raft-nodes.example.com", grpc.WithDefaultServiceConfig(c))
 ```
 
@@ -43,7 +45,12 @@ You'll need to create a DNS entry that points to all your Raft nodes. If you don
 
 ```go
 import _ "github.com/Jille/grpc-multi-resolver"
+import _ "google.golang.org/grpc/health"
 
-c := `{"healthCheckConfig": {"serviceName": "your-service-name-or-an-empty-string"}}`
+c := `{"healthCheckConfig": {"serviceName": "your-service-name-or-an-empty-string"}, "loadBalancingConfig": [ { "round_robin": {} } ]}`
 conn, err := grpc.Dial("multi:///127.0.0.1:50051,127.0.0.1:50052,127.0.0.1:50053", grpc.WithDefaultServiceConfig(c))
 ```
+
+### Wait for Ready
+
+I recommend enabling [Wait for Ready](https://github.com/grpc/grpc/blob/master/doc/wait-for-ready.md) by adding `grpc.WithDefaultCallOption(grpc.WithWaitForReady(true))` to your grpc.Dial(). This lets gRPC wait for a connection to the leader rather than immediately failing it if the leader is currently unknown. The deadline is still honored.
