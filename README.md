@@ -2,11 +2,11 @@
 
 [![Godoc](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/leaderhealth?status.svg)](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/leaderhealth)
 
-This small library allows you to send RPCs to your Raft leader.
+Send gRPCs to your [Raft](https://github.com/hashicorp/raft) leader.
 
 It connects to all your Raft nodes and uses [client-side health checks](https://github.com/grpc/proposal/blob/master/A17-client-side-health-checking.md) to only send RPCs to the master.
 
-During leader elections you'll see about one RTT of errors, make sure your client can handle those and retries them.
+During leader elections you'll see errors, make sure your client can handle those and retries them.
 
 ## Server side
 
