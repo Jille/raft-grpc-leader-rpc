@@ -38,7 +38,8 @@ Add this to your client:
 import _ "google.golang.org/grpc/health"
 
 c := `{"healthCheckConfig": {"serviceName": "quis.RaftLeader"}, "loadBalancingConfig": [ { "round_robin": {} } ]}`
-conn, err := grpc.Dial("dns://all-your-raft-nodes.example.com", grpc.WithDefaultServiceConfig(c))
+target := "dns://all-your-raft-nodes.example.com"
+conn, err := grpc.Dial(target, grpc.WithDefaultServiceConfig(c))
 ```
 
 Instead of `quis.RaftLeader` you can also pick any of the service names you registered with leaderhealth.Setup().
@@ -47,14 +48,12 @@ You'll need to create a DNS entry that points to all your Raft nodes.
 
 ### No DNS entry?
 
-If you don't feel like doing that, you can use this instead:
+If you don't have a DNS entry, check out https://github.com/Jille/grpc-multi-resolver. Usage is easy.
 
 ```go
 import _ "github.com/Jille/grpc-multi-resolver"
-import _ "google.golang.org/grpc/health"
 
-c := `{"healthCheckConfig": {"serviceName": "your-service-name-or-an-empty-string"}, "loadBalancingConfig": [ { "round_robin": {} } ]}`
-conn, err := grpc.Dial("multi:///127.0.0.1:50051,127.0.0.1:50052,127.0.0.1:50053", grpc.WithDefaultServiceConfig(c))
+target := "multi:///127.0.0.1:50051,127.0.0.1:50052,127.0.0.1:50053"
 ```
 
 ### Wait for Ready
