@@ -1,6 +1,6 @@
 # raft-grpc-leader-rpc
 
-[![Godoc](https://godoc.org/github.com/Jille/raft-grpc-leader-resolver?status.svg)](https://godoc.org/github.com/Jille/raft-grpc-leader-resolver)
+[![Godoc](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/leaderhealth?status.svg)](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/leaderhealth)
 
 This small library allows you to send RPCs to your Raft leader.
 
