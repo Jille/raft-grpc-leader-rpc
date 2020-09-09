@@ -85,4 +85,4 @@ Your server will need to more modifications. Each of your RPCs needs to return a
 
 [![Godoc](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/rafterrors?status.svg)](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/rafterrors)
 
-Make sure to read rafterror's documentation to known when to use MarkRetriable vs MarkUnretriable, there's a pitfall.
+Make sure to read rafterrors' documentation to known when to use MarkRetriable vs MarkUnretriable, there's a pitfall.
