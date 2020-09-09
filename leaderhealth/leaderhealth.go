@@ -19,18 +19,28 @@ func Setup(r *raft.Raft, s *grpc.Server, services []string) {
 // Report starts a goroutine that updates the given health.Server with whether we are the Raft leader.
 // It will set the given services as SERVING if we are the leader, and as NOT_SERVING otherwise.
 func Report(r *raft.Raft, hs *health.Server, services []string) {
-	ch := make(chan raft.Observation, 1)
-	r.RegisterObserver(raft.NewObserver(ch, true, func(o *raft.Observation) bool {
-		_, ok := o.Data.(raft.LeaderObservation)
-		return ok
-	}))
-	setServingStatus(hs, services, r.State() == raft.Leader)
-	go func() {
-		for range ch {
-			// TODO(quis, https://github.com/hashicorp/raft/issues/426): Use a safer method to decide if we are the leader.
-			setServingStatus(hs, services, r.State() == raft.Leader)
-		}
-	}()
+	lch1 := r.LeaderCh()
+	lch2 := r.LeaderCh()
+	if lch1 == lch2 {
+		ch := make(chan raft.Observation, 1)
+		r.RegisterObserver(raft.NewObserver(ch, true, func(o *raft.Observation) bool {
+			_, ok := o.Data.(raft.LeaderObservation)
+			return ok
+		}))
+		setServingStatus(hs, services, r.State() == raft.Leader)
+		go func() {
+			for range ch {
+				setServingStatus(hs, services, r.State() == raft.Leader)
+			}
+		}()
+	} else {
+		setServingStatus(hs, services, <-lch1)
+		go func() {
+			for isLeader := range lch1 {
+				setServingStatus(hs, services, isLeader)
+			}
+		}()
+	}
 }
 
 func setServingStatus(hs *health.Server, services []string, isLeader bool) {
