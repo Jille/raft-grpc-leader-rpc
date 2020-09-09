@@ -24,6 +24,8 @@ leaderhealth.Setup(r, s, services)
 
 Use "" to mark all gRPC services as unhealthy if you aren't the master. Otherwise pass only the service names that you want to control healthiness for.
 
+If you don't know what to choose, consider using the (hereby) standardized `quis.RaftLeader` service name.
+
 Want to [read more about health checking](https://github.com/grpc/proposal/blob/master/A17-client-side-health-checking.md)?
 
 ## Client side

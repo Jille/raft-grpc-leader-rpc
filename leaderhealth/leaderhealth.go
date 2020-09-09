@@ -41,4 +41,5 @@ func setServingStatus(hs *health.Server, services []string, isLeader bool) {
 	for _, srv := range services {
 		hs.SetServingStatus(srv, v)
 	}
+	hs.SetServingStatus("quis.RaftLeader", v)
 }
