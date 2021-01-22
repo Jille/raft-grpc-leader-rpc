@@ -10,10 +10,11 @@ import (
 
 // Setup creates a new health.Server for you and registers it on s.
 // It's a convenience wrapper around Report.
-func Setup(r *raft.Raft, s *grpc.Server, services []string) {
+func Setup(r *raft.Raft, s *grpc.Server, services []string) *health.Server {
 	hs := health.NewServer()
 	Report(r, hs, services)
 	grpc_health_v1.RegisterHealthServer(s, hs)
+	return hs
 }
 
 // Report starts a goroutine that updates the given health.Server with whether we are the Raft leader.
