@@ -4,7 +4,7 @@ Send gRPCs to your [Raft](https://github.com/hashicorp/raft) leader.
 
 It connects to all your Raft nodes and uses [client-side health checks](https://github.com/grpc/proposal/blob/master/A17-client-side-health-checking.md) to only send RPCs to the master.
 
-During leader elections you'll see errors, make sure your client can handle those and retries them.
+During leader elections there will temporarily be no leader and you'll see errors, make sure your client can handle those and retries them.
 
 ## Server side
 
@@ -30,7 +30,7 @@ Want to [read more about health checking](https://github.com/grpc/proposal/blob/
 
 ## Client side
 
-You need to explicitly configure your clients to look at health checks.
+You need to explicitly configure your clients to enable health checking.
 
 Add this to your client:
 
@@ -42,7 +42,9 @@ target := "dns://all-your-raft-nodes.example.com"
 conn, err := grpc.Dial(target, grpc.WithDefaultServiceConfig(c))
 ```
 
-Instead of `quis.RaftLeader` you can also pick any of the service names you registered with leaderhealth.Setup().
+Instead of `quis.RaftLeader` you can also pick any of the service names you've registered with leaderhealth.Setup().
+
+You can also configure the _ServiceConfig_ in DNS if you want to.
 
 You'll need to create a DNS entry that points to all your Raft nodes.
 
@@ -58,15 +60,15 @@ target := "multi:///127.0.0.1:50051,127.0.0.1:50052,127.0.0.1:50053"
 
 ### Wait for Ready
 
-I recommend enabling [Wait for Ready](https://github.com/grpc/grpc/blob/master/doc/wait-for-ready.md) by adding `grpc.WithDefaultCallOptions(grpc.WaitForReady(true))` to your grpc.Dial(). This lets gRPC wait for a connection to the leader rather than immediately failing it if the leader is currently unknown. The deadline is still honored.
+I recommend enabling [Wait for Ready](https://github.com/grpc/grpc/blob/master/doc/wait-for-ready.md) by adding `grpc.WithDefaultCallOptions(grpc.WaitForReady(true))` to your grpc.Dial(). This lets gRPC wait for a connection to the leader rather than immediately failing RPCs if the leader is currently unknown. The deadline is still honored.
 
-When you get errors like `connection active but health check failed.`, this is what you want to enable.
+If you get errors like `connection active but health check failed.`, this is what you want to enable.
 
 ## Automatic retries
 
 You can use https://godoc.org/github.com/grpc-ecosystem/go-grpc-middleware/retry to transparently retry failures without the client code knowing it.
 
-You're gonna want to enable Wait for Ready or this isn't going to make it very transparent for your clients.
+You should enable _Wait for Ready_, otherwise it might burn through all the retries before there is a new leader.
 
 Add this to your client:
 
@@ -80,8 +82,8 @@ retryOpts := []grpc_retry.CallOption{
 grpc.Dial(..., grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(retryOpts...)))
 ```
 
-Your server will need to more modifications. Each of your RPCs needs to return appropriate status codes.
+**Your server will need some modifications too.** Each of your RPCs needs to return an appropriate status code.
 
 [![Godoc](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/rafterrors?status.svg)](https://godoc.org/github.com/Jille/raft-grpc-leader-rpc/rafterrors)
 
-Make sure to read rafterrors' documentation to known when to use MarkRetriable vs MarkUnretriable, there's a pitfall.
+Make sure to read `rafterrors`' documentation to know when to use MarkRetriable vs MarkUnretriable, there's a pitfall.
